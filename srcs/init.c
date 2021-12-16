@@ -1,6 +1,6 @@
 #include "../includes/philo.h"
 
-void    init_philosophers(t_rules    *rules)
+void    init_philos(t_rules    *rules)
 {
     int i;
 
@@ -32,6 +32,8 @@ int init_mutex(t_rules  *rules)
         return (-1);
     if (pthread_mutex_init(&(rules->check_death), NULL) != 0)
         return (-1);
+    if (pthread_mutex_init(&(rules->check_meal), NULL) != 0)
+        return (-1);
     return (0);
 }
 
@@ -42,7 +44,7 @@ int    init_rules(t_rules  *rules)
     gettimeofday(&rules->beginning, NULL);
     if (init_mutex(rules) < 0)
         return (-1);
-    init_philosophers(rules);
+    init_philos(rules);
     if (pthread_attr_init(&rules->attr) != 0)
         return (-1);
     pthread_attr_setdetachstate(&rules->attr, PTHREAD_CREATE_JOINABLE);

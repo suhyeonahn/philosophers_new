@@ -7,7 +7,7 @@ long long	timestamp(struct timeval    t)
 
 void    print_status(t_rules *rules, int id, char *str, int fork)
 {
-    pthread_mutex_lock(&(rules->print_status));
+	pthread_mutex_lock(&(rules->print_status));
 	if (!rules->died && !rules->all_ate)
 	{
         gettimeofday(&rules->now, NULL);

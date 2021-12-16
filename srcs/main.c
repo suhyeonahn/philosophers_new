@@ -19,10 +19,11 @@ void    destroy(t_rules *rules)
     }
     pthread_mutex_destroy(&rules->print_status);
     pthread_mutex_destroy(&rules->check_death);
+    pthread_mutex_destroy(&rules->check_meal);
     pthread_exit(NULL);
 }
 
-void    eat(t_philosopher   *p)
+void    eat(t_philo   *p)
 {
     pthread_mutex_lock(&(p->rules->forks[p->lfork_id]));
     pthread_mutex_lock(&(p->rules->forks[p->rfork_id]));
@@ -31,8 +32,8 @@ void    eat(t_philosopher   *p)
     pthread_mutex_lock(&(p->rules->check_death));
     print_status(p->rules, p->id, "is eating\n", 0);
     gettimeofday(&p->last_meal, NULL);
-    pthread_mutex_unlock(&(p->rules->check_death));
     p->eat_count++;
+    pthread_mutex_unlock(&(p->rules->check_death));
     usleep(p->rules->time_to_eat);
     pthread_mutex_unlock(&(p->rules->forks[p->lfork_id]));
 	pthread_mutex_unlock(&(p->rules->forks[p->rfork_id]));
@@ -40,15 +41,17 @@ void    eat(t_philosopher   *p)
 
 void    *thread(void   *philo)
 {
-    t_philosopher   *p;
+    t_philo   *p;
     t_rules *rules;
-    p = (t_philosopher  *)philo;
+    p = (t_philo  *)philo;
     rules = p->rules;
     while (!rules->died && !rules->all_ate)
     {
         eat(p);
+        pthread_mutex_lock(&(p->rules->check_death));
         if (rules->all_ate)       
             break;
+        pthread_mutex_unlock(&(p->rules->check_death));
         print_status(p->rules, p->id, "is sleeping\n", 0);
         usleep(p->rules->time_to_sleep);
         print_status(p->rules, p->id, "is thinking\n", 0);
@@ -58,7 +61,7 @@ void    *thread(void   *philo)
 
 void    create_threads(t_rules *rules)
 {
-    t_philosopher   *philo;
+    t_philo   *philo;
     int i;
 
     philo = rules->philo;

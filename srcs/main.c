@@ -26,14 +26,14 @@ void    destroy(t_rules *rules)
 void    eat(t_philo   *p)
 {
     pthread_mutex_lock(&(p->rules->forks[p->lfork_id]));
+    if (!print_status(p, p->id, "has ", p->lfork_id + 1))
+        return ;
     pthread_mutex_lock(&(p->rules->forks[p->rfork_id]));
-    print_status(p->rules, p->id, "has ", p->lfork_id + 1);
-    print_status(p->rules, p->id, "has ", p->rfork_id + 1);
-    pthread_mutex_lock(&(p->rules->check_death));
-    print_status(p->rules, p->id, "is eating\n", 0);
+    if (!print_status(p, p->id, "has ", p->rfork_id + 1))
+        return ;
+    if (!print_status(p, p->id, "is eating\n", -42))
+        return ;
     gettimeofday(&p->last_meal, NULL);
-    p->eat_count++;
-    pthread_mutex_unlock(&(p->rules->check_death));
     usleep(p->rules->time_to_eat);
     pthread_mutex_unlock(&(p->rules->forks[p->lfork_id]));
 	pthread_mutex_unlock(&(p->rules->forks[p->rfork_id]));
@@ -48,13 +48,13 @@ void    *thread(void   *philo)
     while (!rules->died && !rules->all_ate)
     {
         eat(p);
-        pthread_mutex_lock(&(p->rules->check_death));
-        if (rules->all_ate)       
+        if (rules->all_ate || rules->died)       
+            break;      
+        if (!print_status(p, p->id, "is sleeping\n", 0))
             break;
-        pthread_mutex_unlock(&(p->rules->check_death));
-        print_status(p->rules, p->id, "is sleeping\n", 0);
         usleep(p->rules->time_to_sleep);
-        print_status(p->rules, p->id, "is thinking\n", 0);
+        if (!print_status(p, p->id, "is thinking\n", 0))
+            break;
     }
     pthread_exit(NULL);
 }
@@ -69,7 +69,8 @@ void    create_threads(t_rules *rules)
     while (i < rules->num_philos)
     {
         if (pthread_create(&(philo[i].t_id), &rules->attr, thread, (void *)&philo[i]) < 0)
-            exit (0); 
+            exit (0);
+        usleep(150);
         i++;
     }
 }    

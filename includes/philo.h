@@ -50,7 +50,7 @@ void        death(t_rules *rules, int i);
 void        stop_checker(t_rules *rules);
 
 long long	timestamp(struct timeval    t);
-void        print_status(t_rules *rules, int id, char *str, int fork);
+int         print_status(t_philo *p, int id, char *str, int fork);
 
 void        init_philos(t_rules    *rules);
 int         init_mutex(t_rules  *rules);

@@ -19,7 +19,6 @@ void    destroy(t_rules *rules)
     }
     pthread_mutex_destroy(&rules->print_status);
     pthread_mutex_destroy(&rules->check_death);
-    pthread_mutex_destroy(&rules->check_meal);
     pthread_exit(NULL);
 }
 
